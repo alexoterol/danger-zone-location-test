@@ -22,22 +22,28 @@
     }
 
     .info {
-      position: absolute;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: rgba(0, 0, 0, 0.5);
-      color: white;
-      padding: 10px;
-      font-size: 16px;
-      border-radius: 5px;
+        position: fixed;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: rgba(0, 0, 0, 0.7); /* Fondo oscuro con transparencia */
+        color: white;
+        padding: 10px;
+        font-size: 18px;
+        border-radius: 5px;
+        z-index: 9999; /* Asegura que esté al frente de todos los elementos */
+        font-weight: bold;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); /* Sombra sutil para hacerla destacar más */
     }
 
     .alert {
-      background-color: rgba(255, 0, 0, 0.7);
-      color: white;
-      padding: 5px;
-      border-radius: 5px;
+        background-color: rgba(255, 0, 0, 0.8); /* Fondo más rojo para las alertas */
+        color: white;
+        font-weight: bold;
+        padding: 10px;
+        border-radius: 5px;
+        z-index: 9999;
     }
   </style>
 </head>
@@ -47,7 +53,7 @@
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
   <script>
-    const map = L.map('map').setView([0, 0], 13);
+    const map = L.map('map').setView([-2.14, -80], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
     let userMarker = L.marker([0, 0]).addTo(map);
