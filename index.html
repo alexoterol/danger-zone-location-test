@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mapa de Zonas Peligrosas</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+    }
+
+    #map {
+      height: 100vh;
+    }
+
+    .info {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(0, 0, 0, 0.5);
+      color: white;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 5px;
+    }
+
+    .alert {
+      background-color: rgba(255, 0, 0, 0.7);
+      color: white;
+      padding: 5px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="info" id="locationStatus">Esperando ubicación...</div>
+  <div id="map"></div>
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+  <script>
+    const map = L.map('map').setView([0, 0], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+    let userMarker = L.marker([0, 0]).addTo(map);
+    let locationStatus = document.getElementById("locationStatus");
+
+    let dangerZones = []; // Array para almacenar las zonas peligrosas
+    let insideDangerZone = false; // Bandera para controlar si el usuario está dentro de una zona peligrosa
+
+    // Obtener ubicación en tiempo real
+    function updateLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((position) => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+
+          userMarker.setLatLng([lat, lon]);
+          locationStatus.innerHTML = `Ubicación actualizada: Lat: ${lat.toFixed(5)}, Lon: ${lon.toFixed(5)}`;
+
+          // Verificar si la ubicación está dentro de alguna zona peligrosa
+          let isInDangerZone = false;
+          for (let i = 0; i < dangerZones.length; i++) {
+            if (dangerZones[i].getBounds().contains(userMarker.getLatLng())) {
+              isInDangerZone = true;
+              break;
+            }
+          }
+
+          // Comprobar si entramos o salimos de una zona peligrosa
+          if (isInDangerZone && !insideDangerZone) {
+            insideDangerZone = true; // Marcar que el usuario está dentro de una zona peligrosa
+            locationStatus.classList.add("alert");
+            locationStatus.innerHTML = "¡Estás en una zona peligrosa!";
+            alert("¡Alerta! Estás en una zona peligrosa.");
+          } else if (!isInDangerZone && insideDangerZone) {
+            insideDangerZone = false; // Marcar que el usuario ha salido de la zona peligrosa
+          }
+
+        }, () => {
+          locationStatus.innerHTML = "No se pudo obtener la ubicación.";
+        });
+      }
+    }
+
+    // Actualizar la ubicación cada medio segundo (500ms)
+    setInterval(updateLocation, 500);
+
+    // Permitir al usuario dibujar zonas peligrosas
+    const drawnItems = new L.FeatureGroup().addTo(map);
+    map.addControl(new L.Control.Draw({
+      edit: {
+        featureGroup: drawnItems
+      }
+    }));
+
+    map.on(L.Draw.Event.CREATED, (event) => {
+        const layer = event.layer;
+        a = drawnItems.addLayer(layer);
+        console.log();
+        // Añadir la zona peligrosa al array y darle estilo
+        dangerZones.push(layer);
+
+        // Estilizar las zonas peligrosas (puedes personalizar esto)
+        if (layer instanceof L.Circle) {
+            layer.setStyle({ color: 'red', weight: 2, fillOpacity: 0.5 });
+        } else if (layer instanceof L.Rectangle) {
+            layer.setStyle({ color: 'red', weight: 2, fillOpacity: 0.5 });
+        } else if (layer instanceof L.Polygon) {
+            layer.setStyle({ color: 'red', weight: 2, fillOpacity: 0.5 });
+        }
+    });
+
+  </script>
+</body>
+</html>
